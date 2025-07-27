@@ -1,0 +1,65 @@
+/* Fondo con imagen a pantalla completa */
+.crear-evento-page {
+  background-image: url('../../public/imagenes/crearevento.jpg'); /* Cambia por tu ruta real */
+  background-size: cover;
+  background-position: center;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Recuadro blanco centrado */
+.crear-evento-formulario {
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  width: 400px;
+  max-width: 90%;
+}
+
+/* Inputs y botón con diseño limpio */
+.crear-evento-formulario input,
+.crear-evento-formulario textarea {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.crear-evento-formulario select {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+  background-color: white;
+}
+
+
+.crear-evento-formulario button {
+  width: 100%;
+  padding: 10px;
+  background-color: #00798a;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.crear-evento-formulario button:hover {
+  background-color: #005f6b;
+}
+
+.crear-evento-formulario h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #333;
+}
