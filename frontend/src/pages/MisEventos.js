@@ -302,19 +302,64 @@ useEffect(() => {
               <button onClick={() => handleEliminarEvento(evento.id)}>Eliminar</button>
               <button onClick={() => verInscritos(evento.id)}>Ver inscritos</button>
               {eventoAbierto === evento.id && (
-                <div className="inscritos-lista">
-                  <strong>Usuarios inscritos:</strong>
-                  <ul>
-                    {inscritosPorEvento[evento.id]?.length > 0 ? (
-                      inscritosPorEvento[evento.id].map(usuario => (
-                        <li key={usuario.id}>{usuario.nombreUsuario}</li>
-                      ))
-                    ) : (
-                      <li>No hay inscritos</li>
-                    )}
-                  </ul>
-                </div>
-              )}
+  <div className="inscritos-lista">
+    <strong>Usuarios inscritos:</strong>
+    <ul>
+      {inscritosPorEvento[evento.id]?.length > 0 ? (
+        inscritosPorEvento[evento.id].map(usuario => (
+          <li key={usuario.id}>{usuario.nombreUsuario}</li>
+        ))
+      ) : (
+        <li>No hay inscritos</li>
+      )}
+    </ul>
+  </div>
+)}
+
+{/* NUEVO: Mostrar si el evento ya ha pasado */}
+{evento.fecha < hoy && (
+  <>
+    <p style={{ color: "gray", fontWeight: "bold", marginTop: "10px" }}>
+      📅 Evento finalizado
+    </p>
+    <p style={{ fontSize: "0.9em", marginBottom: "5px" }}>
+      Valoración media: <strong>{evento.valoracionMedia?.toFixed(1) || 0}/10</strong> ({evento.numeroValoraciones || 0} valoraciones)
+    </p>
+    <p
+      onClick={() => toggleComentarios(evento.id)}
+      style={{ color: "gray", cursor: "pointer", marginTop: "5px" }}
+    >
+      &gt; Comentarios ({numComentarios[evento.id] || 0})
+    </p>
+    {comentariosAbiertos[evento.id] && comentariosPorEvento[evento.id]?.length > 0 && (
+      <div
+        className="comentarios-lista"
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "15px",
+          marginTop: "10px"
+        }}
+      >
+        {comentariosPorEvento[evento.id].map((coment, i) => (
+          <div
+            key={i}
+            style={{
+              backgroundColor: "#f5f5f5",
+              padding: "10px",
+              borderRadius: "8px",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.1)"
+            }}
+          >
+            <p style={{ fontStyle: "italic", marginBottom: "5px" }}>"{coment.texto}"</p>
+            <p style={{ fontSize: "0.85em", color: "#555", margin: 0 }}>— {coment.usuario}</p>
+          </div>
+        ))}
+      </div>
+    )}
+  </>
+)}
+
             </div>
           ))
         ) : (
