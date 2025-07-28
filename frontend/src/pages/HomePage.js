@@ -3,6 +3,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 import "./HomePage.css";
 
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
+
 function HomePage() {
   const [eventos, setEventos] = useState([]);
   const [categoria, setCategoria] = useState("");
@@ -22,7 +25,7 @@ function HomePage() {
     if (fecha) params.append("fecha", fecha);
     if (ciudadParam) params.append("ciudad", ciudadParam);
 
-    fetch(`http://localhost:8080/api/eventos/busqueda?${params.toString()}`)
+    fetch(`${BACKEND_URL}/api/eventos/busqueda?${params.toString()}`)
       .then(res => res.json())
       .then(data => setEventos(data))
       .catch(err => console.error("Error al buscar eventos:", err));
@@ -34,12 +37,12 @@ function HomePage() {
     setCiudad(ciudadGuardada);
     buscarEventos(ciudadGuardada);
   } else {
-    setCiudad("");
-    fetch("http://localhost:8080/api/eventos/listar")
-      .then((res) => res.json())
-      .then((data) => setEventos(data))
-      .catch((err) => console.error("Error al cargar eventos:", err));
-  }
+      setCiudad("");
+      fetch(`${BACKEND_URL}/api/eventos/listar`)
+        .then((res) => res.json())
+        .then((data) => setEventos(data))
+        .catch((err) => console.error("Error al cargar eventos:", err));
+    }
 }, [location]);
 
   return (
@@ -106,7 +109,7 @@ function HomePage() {
               if (ciudadGuardada) {
                 buscarEventos(ciudadGuardada);
               } else {
-                fetch("http://localhost:8080/api/eventos/listar")
+                fetch(`${BACKEND_URL}/api/eventos/listar`)
                   .then((res) => res.json())
                   .then((data) => setEventos(data));
               }

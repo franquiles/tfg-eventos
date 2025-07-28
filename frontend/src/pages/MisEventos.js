@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 
 import "./MisEventos.css";
 
+// Usamos la variable del entorno
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
 function MisEventos() {
   const [eventosCreados, setEventosCreados] = useState([]);
   const [eventosInscritos, setEventosInscritos] = useState([]);
@@ -19,12 +22,13 @@ function MisEventos() {
   const [numComentarios, setNumComentarios] = useState({});
   const [comentariosEnviados, setComentariosEnviados] = useState({});
 
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (usuarioId) {
-      fetch(`http://localhost:8080/api/inscripciones/inscritos/${usuarioId}`)
+      fetch(`${BACKEND_URL}/api/inscripciones/inscritos/${usuarioId}`)
         .then(res => res.json())
-        .then(data => setEventosInscritos(data))
+        .then(setEventosInscritos)
         .catch(err => console.error("Error cargando eventos inscritos:", err));
     }
   }, [usuarioId]);
@@ -32,163 +36,146 @@ function MisEventos() {
   useEffect(() => {
     const usuario = localStorage.getItem("usuario");
     if (usuario) {
-      fetch(`http://localhost:8080/api/eventos/creados?usuario=${usuario}`)
+      fetch(`${BACKEND_URL}/api/eventos/creados?usuario=${usuario}`)
         .then(res => res.json())
-        .then(data => setEventosCreados(data))
+        .then(setEventosCreados)
         .catch(err => console.error("Error cargando eventos creados:", err));
     }
   }, []);
-  const navigate = useNavigate();
 
   const handleEliminarEvento = async (id) => {
-  const confirmar = window.confirm("¿Estás seguro de que quieres eliminar este evento?");
-  if (confirmar) {
-    const res = await fetch(`http://localhost:8080/api/eventos/${id}`, {
-      method: "DELETE",
-    });
+    const confirmar = window.confirm("¿Estás seguro de que quieres eliminar este evento?");
+    if (!confirmar) return;
+
+    const res = await fetch(`${BACKEND_URL}/api/eventos/${id}`, { method: "DELETE" });
     if (res.ok) {
       alert("Evento eliminado correctamente");
-      setEventosCreados(prev => prev.filter(evento => evento.id !== id));
+      setEventosCreados(prev => prev.filter(e => e.id !== id));
     } else {
       alert("Error al eliminar el evento");
     }
-  }
-};
+  };
 
-const verInscritos = async (eventoId) => {
-  if (eventoAbierto === eventoId) {
-    setEventoAbierto(null); 
-    return;
-  }
-  const res = await fetch(`http://localhost:8080/api/inscripciones/evento/${eventoId}/usuarios`);
-  const data = await res.json();
-  setInscritosPorEvento(prev => ({ ...prev, [eventoId]: data }));
-  setEventoAbierto(eventoId);
-};
-
-
-
-const handleDesapuntarse = async (eventoId) => {
-  const confirmar = window.confirm("¿Seguro que quieres desapuntarte de este evento?");
-  if (!confirmar) return;
-
-  const res = await fetch(`http://localhost:8080/api/inscripciones/desapuntarse?usuarioId=${usuarioId}&eventoId=${eventoId}`, {
-    method: "DELETE"
-  });
-
-  const msg = await res.text();
-  alert(msg);
-
-  if (res.ok) {
-    // Quitar el evento de la lista visual
-    setEventosInscritos(prev => prev.filter(evento => evento.id !== eventoId));
-  }
-};
-
-const handleValorar = async (eventoId) => {
-  const nota = prompt("Valora el evento del 1 al 10:");
-  const valor = parseInt(nota);
-  if (!valor || valor < 1 || valor > 10) {
-    alert("Introduce un número válido del 1 al 10");
-    return;
-  }
-  const res = await fetch(`http://localhost:8080/api/inscripciones/valorar`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      usuarioId,
-      eventoId,
-      valoracion: valor
-    })
-  });
-  const msg = await res.text();
-  alert(msg);
-  if (res.ok) {
-    setValoraciones(prev => ({ ...prev, [eventoId]: true }));
-  }
-};
-
-const handleComentar = async (eventoId) => {
-  if (!nuevoComentario.trim()) {
-    alert("El comentario no puede estar vacío.");
-    return;
-  }
-  const res = await fetch("http://localhost:8080/api/inscripciones/comentar", {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      usuarioId,
-      eventoId,
-      comentario: nuevoComentario
-    })
-  });
-  const msg = await res.text();
-  alert(msg);
-  if (res.ok) {
-    setComentarioAbierto(null);
-    setNuevoComentario("");
-    setComentariosEnviados(prev => ({ ...prev, [eventoId]: true }));
-    // Refrescar comentarios visibles
-    if (comentariosAbiertos[eventoId]) {
-      await toggleComentarios(eventoId); // cerrar
-      await toggleComentarios(eventoId); // reabrir y refrescar
+  const verInscritos = async (eventoId) => {
+    if (eventoAbierto === eventoId) {
+      setEventoAbierto(null);
+      return;
     }
-  }
-};
-
-
-const toggleComentarios = async (eventoId) => {
-  const abierto = comentariosAbiertos[eventoId];
-
-  if (abierto) {
-    setComentariosAbiertos(prev => ({ ...prev, [eventoId]: false }));
-  } else {
-    const res = await fetch(`http://localhost:8080/api/inscripciones/comentarios/${eventoId}`);
+    const res = await fetch(`${BACKEND_URL}/api/inscripciones/evento/${eventoId}/usuarios`);
     const data = await res.json();
+    setInscritosPorEvento(prev => ({ ...prev, [eventoId]: data }));
+    setEventoAbierto(eventoId);
+  };
 
-    setComentariosPorEvento(prev => ({ ...prev, [eventoId]: data }));
-    setComentariosAbiertos(prev => ({ ...prev, [eventoId]: true }));
-    setNumComentarios(prev => ({ ...prev, [eventoId]: data.length }));
-  }
-};
+  const handleDesapuntarse = async (eventoId) => {
+    const confirmar = window.confirm("¿Seguro que quieres desapuntarte de este evento?");
+    if (!confirmar) return;
 
+    const res = await fetch(`${BACKEND_URL}/api/inscripciones/desapuntarse?usuarioId=${usuarioId}&eventoId=${eventoId}`, {
+      method: "DELETE"
+    });
 
-useEffect(() => {
-  if (usuarioId) {
-    fetch(`http://localhost:8080/api/inscripciones/usuario/${usuarioId}`)
-      .then(res => res.json())
-      .then(data => {
-        const comentados = {};
-        data.forEach(insc => {
-          if (insc.comentario && insc.comentario.trim() !== "") {
-            comentados[insc.eventoId] = true;
-          }
-        });
-        setComentariosEnviados(comentados);
-      })
-      .catch(err => console.error("Error cargando comentarios previos:", err));
-  }
-}, [usuarioId]);
+    const msg = await res.text();
+    alert(msg);
 
+    if (res.ok) {
+      setEventosInscritos(prev => prev.filter(e => e.id !== eventoId));
+    }
+  };
 
-useEffect(() => {
-  if (usuarioId) {
-    fetch(`http://localhost:8080/api/inscripciones/usuario/${usuarioId}`)
-      .then(res => res.json())
-      .then(data => {
-        const yaValorados = {};
-        data.forEach(insc => {
-          if (insc.valoracion !== null) {
-            yaValorados[insc.eventoId] = true;
-          }
-        });
-        setValoraciones(yaValorados);
-      })
-      .catch(err => console.error("Error cargando valoraciones previas:", err));
-  }
-}, [usuarioId]);
+  const handleValorar = async (eventoId) => {
+    const nota = prompt("Valora el evento del 1 al 10:");
+    const valor = parseInt(nota);
+    if (!valor || valor < 1 || valor > 10) {
+      alert("Introduce un número válido del 1 al 10");
+      return;
+    }
 
+    const res = await fetch(`${BACKEND_URL}/api/inscripciones/valorar`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ usuarioId, eventoId, valoracion: valor })
+    });
 
+    const msg = await res.text();
+    alert(msg);
+
+    if (res.ok) {
+      setValoraciones(prev => ({ ...prev, [eventoId]: true }));
+    }
+  };
+
+  const handleComentar = async (eventoId) => {
+    if (!nuevoComentario.trim()) {
+      alert("El comentario no puede estar vacío.");
+      return;
+    }
+
+    const res = await fetch(`${BACKEND_URL}/api/inscripciones/comentar`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ usuarioId, eventoId, comentario: nuevoComentario })
+    });
+
+    const msg = await res.text();
+    alert(msg);
+
+    if (res.ok) {
+      setComentarioAbierto(null);
+      setNuevoComentario("");
+      setComentariosEnviados(prev => ({ ...prev, [eventoId]: true }));
+      if (comentariosAbiertos[eventoId]) {
+        await toggleComentarios(eventoId);
+        await toggleComentarios(eventoId);
+      }
+    }
+  };
+
+  const toggleComentarios = async (eventoId) => {
+    if (comentariosAbiertos[eventoId]) {
+      setComentariosAbiertos(prev => ({ ...prev, [eventoId]: false }));
+    } else {
+      const res = await fetch(`${BACKEND_URL}/api/inscripciones/comentarios/${eventoId}`);
+      const data = await res.json();
+      setComentariosPorEvento(prev => ({ ...prev, [eventoId]: data }));
+      setComentariosAbiertos(prev => ({ ...prev, [eventoId]: true }));
+      setNumComentarios(prev => ({ ...prev, [eventoId]: data.length }));
+    }
+  };
+
+  useEffect(() => {
+    if (usuarioId) {
+      fetch(`${BACKEND_URL}/api/inscripciones/usuario/${usuarioId}`)
+        .then(res => res.json())
+        .then(data => {
+          const comentados = {};
+          data.forEach(insc => {
+            if (insc.comentario && insc.comentario.trim() !== "") {
+              comentados[insc.eventoId] = true;
+            }
+          });
+          setComentariosEnviados(comentados);
+        })
+        .catch(err => console.error("Error cargando comentarios previos:", err));
+    }
+  }, [usuarioId]);
+
+  useEffect(() => {
+    if (usuarioId) {
+      fetch(`${BACKEND_URL}/api/inscripciones/usuario/${usuarioId}`)
+        .then(res => res.json())
+        .then(data => {
+          const yaValorados = {};
+          data.forEach(insc => {
+            if (insc.valoracion !== null) {
+              yaValorados[insc.eventoId] = true;
+            }
+          });
+          setValoraciones(yaValorados);
+        })
+        .catch(err => console.error("Error cargando valoraciones previas:", err));
+    }
+  }, [usuarioId]);
 
 
 

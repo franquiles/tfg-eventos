@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./CrearEvento.css";
 
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
 
 function CrearEventoPage() {
   const [formData, setFormData] = useState({
@@ -43,17 +45,23 @@ function CrearEventoPage() {
     e.preventDefault();
     const eventoConCreador = { ...formData, creador: usuario };
 
-    const res = await fetch("http://localhost:8080/api/eventos/crear", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(eventoConCreador)
-    });
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/eventos/crear`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(eventoConCreador)
+      });
 
-    if (res.ok) {
-      alert("Evento creado correctamente");
-      navigate("/"); 
-    } else {
-      alert("Error al crear el evento");
+      if (res.ok) {
+        alert("Evento creado correctamente");
+        navigate("/"); 
+      } else {
+        const errorMsg = await res.text();
+        alert("Error al crear el evento: " + errorMsg);
+      }
+    } catch (error) {
+      console.error("Error al enviar el evento:", error);
+      alert("Error de conexión con el servidor.");
     }
   };
 

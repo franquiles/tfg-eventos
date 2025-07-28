@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./RegisterPage.css";
 
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
 
 function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -18,18 +20,26 @@ function RegisterPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const res = await fetch("http://localhost:8080/api/usuarios/registro", {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify(formData)
-    });
-    const msg = await res.text();
-    
-    if (msg === "Usuario registrado correctamente") {
-      localStorage.setItem("usuario", formData.nombreUsuario);
-      navigate("/");
-    } else {
-      alert(msg);
+
+
+     try {
+      const res = await fetch(`${BACKEND_URL}/api/usuarios/registro`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData)
+      });
+
+      const msg = await res.text();
+
+      if (msg === "Usuario registrado correctamente") {
+        localStorage.setItem("usuario", formData.nombreUsuario);
+        navigate("/");
+      } else {
+        alert(msg);
+      }
+    } catch (error) {
+      console.error("Error en el registro:", error);
+      alert("No se pudo conectar con el servidor.");
     }
   };
 

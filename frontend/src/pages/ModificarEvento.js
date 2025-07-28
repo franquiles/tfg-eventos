@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "./CrearEvento.css";
 
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
+
 function ModificarEventoPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -17,8 +20,9 @@ function ModificarEventoPage() {
     creador: ""
   });
 
+  
   useEffect(() => {
-    fetch(`http://localhost:8080/api/eventos/${id}`)
+    fetch(`${BACKEND_URL}/api/eventos/${id}`)
       .then((res) => res.json())
       .then((data) => setFormData(data))
       .catch(() => alert("Error al cargar el evento"));
@@ -29,17 +33,22 @@ function ModificarEventoPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const res = await fetch(`http://localhost:8080/api/eventos/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
-    });
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/eventos/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
 
-    if (res.ok) {
-      alert("Evento modificado correctamente");
-      navigate("/mis-eventos");
-    } else {
-      alert("Error al modificar el evento");
+      if (res.ok) {
+        alert("Evento modificado correctamente");
+        navigate("/mis-eventos");
+      } else {
+        alert("Error al modificar el evento");
+      }
+    } catch (error) {
+      console.error("Error al modificar el evento:", error);
+      alert("No se pudo conectar con el servidor.");
     }
   };
 

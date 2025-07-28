@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import "./EventoDetalle.css";
 
+// Usamos la variable del entorno
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
 function EventoDetalle() {
   const { id } = useParams();
   const [evento, setEvento] = useState(null);
@@ -11,50 +14,58 @@ function EventoDetalle() {
   const [creador, setCreador] = useState(null);
 
   useEffect(() => {
-  fetch(`http://localhost:8080/api/eventos/${id}`)
-    .then((res) => res.json())
-    .then((data) => {
-      setEvento(data);
+    fetch(`${BACKEND_URL}/api/eventos/${id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setEvento(data);
 
-      fetch(`http://localhost:8080/api/usuarios/por-nombre/${data.creador}`)
-        .then((res) => res.json())
-        .then((creadorData) => setCreador(creadorData))
-        .catch((err) => console.error("Error al cargar datos del creador:", err));
-    })
-    .catch((err) => console.error("Error al cargar evento:", err));
+        fetch(`${BACKEND_URL}/api/usuarios/por-nombre/${data.creador}`)
+          .then((res) => res.json())
+          .then((creadorData) => setCreador(creadorData))
+          .catch((err) => console.error("Error al cargar datos del creador:", err));
+      })
+      .catch((err) => console.error("Error al cargar evento:", err));
 
-  if (usuarioId) {
-    fetch(`http://localhost:8080/api/inscripciones/comprobar?usuarioId=${usuarioId}&eventoId=${id}`)
-      .then(res => res.json())
-      .then(setYaInscrito);
-  }
-}, [id, usuarioId]);
+    if (usuarioId) {
+      fetch(`${BACKEND_URL}/api/inscripciones/comprobar?usuarioId=${usuarioId}&eventoId=${id}`)
+        .then(res => res.json())
+        .then(setYaInscrito)
+        .catch(err => console.error("Error al comprobar inscripción:", err));
+    }
+  }, [id, usuarioId]);
+
+  const inscribirse = async () => {
+    const confirmar = window.confirm("¿Quieres inscribirte a este evento?");
+    if (!confirmar) return;
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/inscripciones/apuntarse`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          usuarioId: parseInt(usuarioId),
+          eventoId: parseInt(id)
+        })
+      });
+
+      const msg = await res.text();
+      alert(msg);
+
+      if (msg === "Inscripción realizada correctamente.") {
+        setYaInscrito(true);
+
+        // Recargar datos del evento actualizado
+        fetch(`${BACKEND_URL}/api/eventos/${id}`)
+          .then((res) => res.json())
+          .then((data) => setEvento(data));
+      }
+    } catch (error) {
+      console.error("Error al inscribirse:", error);
+      alert("No se pudo completar la inscripción.");
+    }
+  };
 
   if (!evento) return <p>Cargando evento...</p>;
-  const inscribirse = async () => {
-  const confirmar = window.confirm("¿Quieres inscribirte a este evento?");
-  if (!confirmar) return;
-  const res = await fetch("http://localhost:8080/api/inscripciones/apuntarse", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      usuarioId: parseInt(usuarioId),
-      eventoId: parseInt(id)
-    })
-  });
-
-  const msg = await res.text();
-  alert(msg);
-
-  if (msg === "Inscripción realizada correctamente.") {
-    setYaInscrito(true);
-    // Recargar datos actualizados del evento (para ver capacidad)
-    fetch(`http://localhost:8080/api/eventos/${id}`)
-      .then((res) => res.json())
-      .then((data) => setEvento(data));
-  }
-};
-
 
   return (
     <div className="evento-detalle">
@@ -70,20 +81,17 @@ function EventoDetalle() {
         <p><strong>Capacidad:</strong> {evento.capacidad}</p>
         <p><strong>Ubicación:</strong> {evento.ubicacion}</p>
         <p>
-  <strong>Organizado por:</strong>{" "}
-  {creador ? (
-    <>
-      {creador.nombreUsuario} con valoración media de{" "}
-      <strong>{creador.valoracionMedia?.toFixed(1) || "0.0"}/10</strong>, con{" "}
-      <strong>{creador.numeroValoraciones || 0}</strong> eventos valorados
-    </>
-  ) : (
-    evento.creador
-  )}
-</p>
-
-
-        
+          <strong>Organizado por:</strong>{" "}
+          {creador ? (
+            <>
+              {creador.nombreUsuario} con valoración media de{" "}
+              <strong>{creador.valoracionMedia?.toFixed(1) || "0.0"}/10</strong>, con{" "}
+              <strong>{creador.numeroValoraciones || 0}</strong> eventos valorados
+            </>
+          ) : (
+            evento.creador
+          )}
+        </p>
 
         {usuario ? (
           yaInscrito ? (
@@ -96,7 +104,6 @@ function EventoDetalle() {
         ) : (
           <p>🔐 Inicia sesión para apuntarte a este evento.</p>
         )}
-
       </div>
     </div>
   );
