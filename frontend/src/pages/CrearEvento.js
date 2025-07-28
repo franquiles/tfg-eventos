@@ -34,16 +34,18 @@ function CrearEventoPage() {
   const { name, value } = e.target;
 
   const newValue =
-    name === "precio" ? parseFloat(value) :
-    name === "capacidad" ? parseInt(value) :
-    value;
+  name === "precio" ? (value === "" ? 0 : parseFloat(value)) :
+  name === "capacidad" ? (value === "" ? 0 : parseInt(value)) :
+  value;
 
   setFormData({ ...formData, [name]: newValue });
 };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const eventoConCreador = { ...formData, creador: usuario };
+    const { id, ...formularioSinId } = formData; // eliminamos el id si existe
+    const eventoConCreador = { ...formularioSinId, creador: usuario };
+
 
     try {
       const res = await fetch(`${BACKEND_URL}/api/eventos/crear`, {

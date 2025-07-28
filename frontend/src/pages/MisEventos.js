@@ -178,7 +178,6 @@ function MisEventos() {
   }, [usuarioId]);
 
 
-
   return (
   <div className="mis-eventos-container">
     {/* IZQUIERDA - INSCRITOS */}
