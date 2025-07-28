@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/eventos")
@@ -37,7 +35,7 @@ public class EventoController {
         return eventoRepo.findAll();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/id/{id}")
     public ResponseEntity<Evento> obtenerEventoPorId(@PathVariable Long id) {
         return eventoRepo.findById(id)
                .map(ResponseEntity::ok)
@@ -77,15 +75,13 @@ public class EventoController {
             .orElse(ResponseEntity.status(404).body("Evento no encontrado"));
     }
 
-    
-
     @GetMapping("/busqueda")
-        public List<Evento> buscarEventos(
+    public List<Evento> buscarEventos(
         @RequestParam(required = false) String ciudad,
         @RequestParam(required = false) String categoria,
         @RequestParam(required = false) String precio,
         @RequestParam(required = false) String fecha
-        ) {
+    ) {
         LocalDate hoy = LocalDate.now();
         List<Evento> eventos = eventoRepo.findAll();
 
@@ -118,9 +114,6 @@ public class EventoController {
                 };
             })
             .toList();
-}
-
-
-
+    }
 
 }

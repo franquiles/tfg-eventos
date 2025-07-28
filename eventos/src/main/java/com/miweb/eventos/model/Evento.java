@@ -24,6 +24,7 @@ public class Evento {
     private int numeroValoraciones= 0;
     
 
+    public Evento() {}
 
     // Getters y setters
 
