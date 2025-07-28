@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./LoginPage.css";
 
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
 
 function LoginPage() {
   const [formData, setFormData] = useState({ correo: "", contraseña: "" });
@@ -13,22 +15,28 @@ function LoginPage() {
   const handleSubmit = async (e) => {
   e.preventDefault();
 
-  const res = await fetch("http://localhost:8080/api/usuarios/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(formData)
-  });
+       try {
+      const res = await fetch(`${BACKEND_URL}/api/usuarios/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
 
-  if (res.ok) {
-    const data = await res.json();  
-    localStorage.setItem("usuario", data.nombreUsuario);
-    localStorage.setItem("usuarioId", data.id);
-    navigate("/");
-  } else {
-    const errorMsg = await res.text(); 
-    alert(errorMsg);
-  }
-};
+
+      if (res.ok) {
+        const data = await res.json();
+        localStorage.setItem("usuario", data.nombreUsuario);
+        localStorage.setItem("usuarioId", data.id);
+        navigate("/");
+      } else {
+        const errorMsg = await res.text();
+        alert(errorMsg);
+      }
+    } catch (error) {
+      alert("Error al conectar con el servidor.");
+      console.error(error);
+    }
+  };
 
 
   return (
