@@ -1,13 +1,17 @@
 package com.miweb.eventos.controller;
 
 import com.miweb.eventos.model.Evento;
+import com.miweb.eventos.model.Usuario;
 import com.miweb.eventos.repository.EventoRepository;
 import com.miweb.eventos.repository.UsuarioRepository;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/eventos")
@@ -22,12 +26,18 @@ public class EventoController {
         this.usuarioRepo = usuarioRepo;
     }
 
+    @PostMapping("/crear")
+    public String crearEvento(@RequestBody Evento evento) {
+        eventoRepo.save(evento);
+        return "Evento creado correctamente";
+    }
+
     @GetMapping("/listar")
     public List<Evento> obtenerEventos() {
         return eventoRepo.findAll();
     }
 
-    @GetMapping("/id/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Evento> obtenerEventoPorId(@PathVariable Long id) {
         return eventoRepo.findById(id)
                .map(ResponseEntity::ok)
@@ -67,13 +77,15 @@ public class EventoController {
             .orElse(ResponseEntity.status(404).body("Evento no encontrado"));
     }
 
+    
+
     @GetMapping("/busqueda")
-    public List<Evento> buscarEventos(
+        public List<Evento> buscarEventos(
         @RequestParam(required = false) String ciudad,
         @RequestParam(required = false) String categoria,
         @RequestParam(required = false) String precio,
         @RequestParam(required = false) String fecha
-    ) {
+        ) {
         LocalDate hoy = LocalDate.now();
         List<Evento> eventos = eventoRepo.findAll();
 
@@ -106,18 +118,9 @@ public class EventoController {
                 };
             })
             .toList();
-    }
+}
 
-    // ✅ Mueve este método al final
-    @PostMapping("/crear")
-    public String crearEvento(@RequestBody Evento evento) {
-        if (evento.getNombre() == null || evento.getCreador() == null) {
-            return "Nombre o creador no pueden ser nulos";
-        }
 
-        evento.setValoracionMedia(0.0);
-        evento.setNumeroValoraciones(0);
-        eventoRepo.save(evento);
-        return "Evento creado correctamente";
-    }
+
+
 }
