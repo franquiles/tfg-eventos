@@ -1,10 +1,8 @@
 package com.miweb.eventos.controller;
 
 import com.miweb.eventos.model.Evento;
-import com.miweb.eventos.model.Usuario;
 import com.miweb.eventos.repository.EventoRepository;
 import com.miweb.eventos.repository.UsuarioRepository;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,12 +20,6 @@ public class EventoController {
     public EventoController(EventoRepository eventoRepo, UsuarioRepository usuarioRepo) {
         this.eventoRepo = eventoRepo;
         this.usuarioRepo = usuarioRepo;
-    }
-
-    @PostMapping("/crear")
-    public String crearEvento(@RequestBody Evento evento) {
-        eventoRepo.save(evento);
-        return "Evento creado correctamente";
     }
 
     @GetMapping("/listar")
@@ -116,4 +108,16 @@ public class EventoController {
             .toList();
     }
 
+    // ✅ Mueve este método al final
+    @PostMapping("/crear")
+    public String crearEvento(@RequestBody Evento evento) {
+        if (evento.getNombre() == null || evento.getCreador() == null) {
+            return "Nombre o creador no pueden ser nulos";
+        }
+
+        evento.setValoracionMedia(0.0);
+        evento.setNumeroValoraciones(0);
+        eventoRepo.save(evento);
+        return "Evento creado correctamente";
+    }
 }
