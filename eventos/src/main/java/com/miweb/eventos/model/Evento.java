@@ -20,8 +20,8 @@ public class Evento {
     private String creador; 
     @Column(length = 500) 
     private String imagen;
-    private double valoracionMedia;
-    private int numeroValoraciones;
+    private double valoracionMedia = 0.0;
+    private int numeroValoraciones= 0;
     
 
 
