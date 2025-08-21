@@ -54,6 +54,10 @@ public ResponseEntity<Usuario> obtenerPorNombre(@PathVariable String nombre) {
 }
 
 
+@GetMapping("/test")
+public String testBackend() {
+    return "Backend activo";
+}
 
 
 
