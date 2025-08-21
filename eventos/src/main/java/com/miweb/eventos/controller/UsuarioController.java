@@ -2,8 +2,12 @@ package com.miweb.eventos.controller;
 
 import com.miweb.eventos.model.Usuario;
 import com.miweb.eventos.repository.UsuarioRepository;
+import com.miweb.eventos.service.EmailService;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.miweb.eventos.service.EmailService;
+
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,11 +20,13 @@ import java.util.Random;
 public class UsuarioController {
 
     private final UsuarioRepository repo;
+    private final EmailService emailService;
     private Map<String, String> codigosRecuperacion = new HashMap<>();
 
-    public UsuarioController(UsuarioRepository repo) {
-        this.repo = repo;
-    }
+    public UsuarioController(UsuarioRepository repo, EmailService emailService) {
+    this.repo = repo;
+    this.emailService = emailService;
+}
 
     @PostMapping("/registro")
     public String registrar(@RequestBody Usuario usuario) {
@@ -72,11 +78,12 @@ public ResponseEntity<String> enviarCodigo(@RequestBody Map<String, String> dato
     String codigo = String.format("%06d", new Random().nextInt(999999));
     codigosRecuperacion.put(correo, codigo);
 
-    // Simular envío de email (solo para pruebas)
-    System.out.println("Código para " + correo + ": " + codigo);
+    // ✅ Enviar correo real
+    emailService.enviarCodigo(correo, codigo);
 
     return ResponseEntity.ok("Código enviado");
 }
+
 
 @PostMapping("/validar-codigo")
 public ResponseEntity<String> validarCodigo(@RequestBody Map<String, String> datos) {
