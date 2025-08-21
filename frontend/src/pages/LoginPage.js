@@ -122,7 +122,7 @@ const cambiarPassword = async () => {
         {vista === "login" && (
           <>
             <h2>Inicia sesión</h2>
-            <form onSubmit={handleLogin}>
+            <form onSubmit={handleSubmit}>
               <input name="correo" placeholder="Correo electrónico" onChange={(e) => setFormData({ ...formData, correo: e.target.value })} required />
               <input name="contraseña" type="password" placeholder="Contraseña" onChange={(e) => setFormData({ ...formData, contraseña: e.target.value })} required />
               <button type="submit">Iniciar sesión</button>
