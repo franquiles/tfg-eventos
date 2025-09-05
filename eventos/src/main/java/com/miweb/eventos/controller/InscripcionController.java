@@ -32,21 +32,19 @@ public class InscripcionController {
         this.usuarioRepo = usuarioRepo;
     }
 
-    // Endpoint para inscribirse a un evento
+    
     @PostMapping("/apuntarse")
     public String apuntarse(@RequestBody Inscripcion inscripcion) {
-        // Verifica si ya está inscrito
+        
         boolean yaInscrito = inscripcionRepo.existsByUsuarioIdAndEventoId(inscripcion.getUsuarioId(), inscripcion.getEventoId());
         if (yaInscrito) return "Ya estás inscrito en este evento.";
-
-        // Busca el evento y verifica que haya capacidad
+ 
         Optional<Evento> eventoOpt = eventoRepo.findById(inscripcion.getEventoId());
         if (eventoOpt.isEmpty()) return "Evento no encontrado";
 
         Evento evento = eventoOpt.get();
         if (evento.getCapacidad() <= 0) return "No hay plazas disponibles";
 
-        // Disminuye capacidad y guarda inscripción
         evento.setCapacidad(evento.getCapacidad() - 1);
         eventoRepo.save(evento);
 
@@ -56,19 +54,19 @@ public class InscripcionController {
         return "Inscripción realizada correctamente.";
     }
 
-    // Obtener eventos en los que está inscrito un usuario
+   
     @GetMapping("/usuario/{usuarioId}")
     public List<Inscripcion> obtenerInscripcionesPorUsuario(@PathVariable Long usuarioId) {
         return inscripcionRepo.findByUsuarioId(usuarioId);
     }
 
-    // Obtener todos los usuarios inscritos a un evento
+    
     @GetMapping("/evento/{eventoId}")
     public List<Inscripcion> obtenerInscripcionesPorEvento(@PathVariable Long eventoId) {
         return inscripcionRepo.findByEventoId(eventoId);
     }
 
-    // Obtener inscripción específica
+    
     @GetMapping("/comprobar")
     public boolean estaInscrito(@RequestParam Long usuarioId, @RequestParam Long eventoId) {
         return inscripcionRepo.existsByUsuarioIdAndEventoId(usuarioId, eventoId);
@@ -86,16 +84,13 @@ public List<Evento> obtenerEventosInscritos(@PathVariable Long usuarioId) {
 
 @DeleteMapping("/desapuntarse")
 public String desapuntarse(@RequestParam Long usuarioId, @RequestParam Long eventoId) {
-    // Buscar inscripción
     Optional<Inscripcion> inscripcionOpt = inscripcionRepo.findByUsuarioIdAndEventoId(usuarioId, eventoId);
     if (inscripcionOpt.isEmpty()) {
         return "No estás inscrito en este evento.";
     }
 
-    // Eliminar inscripción
     inscripcionRepo.delete(inscripcionOpt.get());
 
-    // Sumar la capacidad de nuevo
     Optional<Evento> eventoOpt = eventoRepo.findById(eventoId);
     eventoOpt.ifPresent(evento -> {
         evento.setCapacidad(evento.getCapacidad() + 1);
@@ -122,7 +117,6 @@ public ResponseEntity<String> valorarEvento(@RequestBody Map<String, String> pay
     inscripcion.setValoracion(nota);
     inscripcionRepo.save(inscripcion);
 
-    // Actualizar media del evento
     Evento evento = eventoRepo.findById(eventoId).orElse(null);
     if (evento == null) return ResponseEntity.badRequest().body("Evento no encontrado");
 
@@ -134,7 +128,6 @@ public ResponseEntity<String> valorarEvento(@RequestBody Map<String, String> pay
     evento.setValoracionMedia(nuevaMedia);
     eventoRepo.save(evento);
 
-    // Actualizar media y número de valoraciones del creador
     Usuario creador = usuarioRepo.findByNombreUsuario(evento.getCreador()).orElse(null);
     if (creador != null) {
         List<Evento> eventosCreados = eventoRepo.findByCreador(creador.getNombreUsuario());
