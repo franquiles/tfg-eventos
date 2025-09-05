@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import "./MisEventos.css";
 
-// Usamos la variable del entorno
+
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
 function MisEventos() {

@@ -43,7 +43,7 @@ function CrearEventoPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { id, ...formularioSinId } = formData; // eliminamos el id si existe
+    const { id, ...formularioSinId } = formData; 
     const eventoConCreador = { ...formularioSinId, creador: usuario };
 
 
@@ -88,8 +88,8 @@ function CrearEventoPage() {
           <option value="Otras">Otras</option>
         </select>
         <input name="fecha" type="date" onChange={handleChange} required />
-        <input name="precio" type="number" placeholder="Precio (€)" onChange={handleChange} required />
-        <input name="capacidad" type="number" placeholder="Capacidad" onChange={handleChange} required />
+        <input name="precio" type="number" placeholder="Precio (€)" onChange={handleChange} required min="0" />
+        <input name="capacidad" type="number" placeholder="Capacidad" onChange={handleChange} required min="1" />
         <input name="ubicacion" placeholder="Ubicación" onChange={handleChange} required />
         <input name="imagen" placeholder="URL de imagen" onChange={handleChange} />
         <button type="submit">Crear evento</button>

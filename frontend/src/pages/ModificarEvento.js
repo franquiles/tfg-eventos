@@ -73,8 +73,8 @@ function ModificarEventoPage() {
             <option value="Otras">Otras</option>
           </select>
           <input name="fecha" type="date" value={formData.fecha} onChange={handleChange} required />
-          <input name="precio" type="number" value={formData.precio} onChange={handleChange} required />
-          <input name="capacidad" type="number" value={formData.capacidad} onChange={handleChange} required />
+          <input name="precio" type="number" value={formData.precio} onChange={handleChange} required min="0" />
+          <input name="capacidad" type="number" value={formData.capacidad} onChange={handleChange} required min="1"/>
           <input name="ubicacion" value={formData.ubicacion} onChange={handleChange} required />
           <input name="imagen" value={formData.imagen} onChange={handleChange} />
           <button type="submit">Guardar cambios</button>
